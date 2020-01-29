@@ -9,8 +9,10 @@ ALTER TABLE `overwatch_levels`
 
 CREATE TABLE `overwatch_ratings` (
   `name` varchar(20) NOT NULL,
-  `role` varchar(10) NOT NULL,
-  `rating` int(11) NOT NULL,
+  `prestige` int(11) NOT NULL NULL DEFAULT '0',
+  `level` int(11) NOT NULL NULL DEFAULT '0',
+  `winRateComp` float NOT NULL DEFAULT '0',
+  `winRateQuick` float NOT NULL DEFAULT '0',
   `date` date NOT NULL
 )
 ALTER TABLE `overwatch_ratings`
