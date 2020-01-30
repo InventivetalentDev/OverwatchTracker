@@ -257,6 +257,18 @@
             ];
 
 
+            const seasonPlotLines = [
+                {
+                  label:"Season 19",
+                  value: new Date(2019,11-1,9).getTime()
+                },
+                {
+                    label: "Season 20",
+                    value:new Date(2020,1-1,2).getTime()
+                }
+            ];
+
+
             $(document).ready(() => {
 
                 roles.forEach(r => {
@@ -279,7 +291,8 @@
                             type: 'datetime',
                             title: {
                                 text: 'Date'
-                            }
+                            },
+                            plotLines:seasonPlotLines
                         },
                         yAxis: {
                             title: {
@@ -322,7 +335,8 @@
                             type: 'datetime',
                             title: {
                                 text: 'Date'
-                            }
+                            },
+                            plotLines:seasonPlotLines
                         },
                         yAxis: {
                             title: {
