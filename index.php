@@ -290,9 +290,9 @@
             ];
 
 
-            const ratingTooltipFormatter =function (tooltip) {
+            const labeledTooltipFormatter =function (tooltip) {
                 return '<span style="font-size: 10px">' + Highcharts.dateFormat('%Y-%m-%d', this.x) + '</span><br/>' +
-                    '<span style="color:' + this.point.color + '">●</span> ' + this.series.name + ': <b>' + (this.point.label || this.y+"SR") + '</b><br/>';
+                    '<span style="color:' + this.point.color + '">●</span> ' + this.series.name + ': <b>' + (this.point.label || this.y) + '</b><br/>';
             };
 
             Highcharts.setOptions({
@@ -310,7 +310,7 @@
                     let roleSeries = [];
                     names.forEach((n, i) => {
                         let ratingsCopy = ratings[r][n];
-                        addRatingArrows(ratingsCopy);
+                        addTrendArrows(ratingsCopy);
                         roleSeries.push({
                             name: n,
                             data: ratingsCopy,
@@ -344,7 +344,7 @@
                             plotBands: ratingPlotBands
                         },
                         tooltip: {
-                            formatter: ratingTooltipFormatter
+                            formatter: labeledTooltipFormatter
                         },
                         plotOptions: {
                             series: {
@@ -364,7 +364,7 @@
                     let nameSeries = [];
                     roles.forEach(r => {
                         let ratingsCopy = ratings[r][n];
-                        addRatingArrows(ratingsCopy);
+                        addTrendArrows(ratingsCopy);
                         nameSeries.push({
                             name: r,
                             data: ratingsCopy,
@@ -398,7 +398,7 @@
                             plotBands: ratingPlotBands
                         },
                         tooltip: {
-                            formatter: ratingTooltipFormatter
+                            formatter: labeledTooltipFormatter
                         },
                         plotOptions: {
                             series: {
@@ -413,9 +413,11 @@
 
                 let levelSeries = [];
                 names.forEach((n,i) => {
+                    let levelsCopy =levels[n];
+                    addTrendArrows(levelsCopy);
                     levelSeries.push({
                         name: n,
-                        data: levels[n],
+                        data: levelsCopy,
                         color: nameColors[i%nameColors.length]
                     })
                 });
@@ -443,7 +445,9 @@
                         endOnTick: false,
                         plotBands: levelPlotBands
                     },
-
+                    tooltip:{
+                        formatter: labeledTooltipFormatter
+                    },
                     plotOptions: {
                         series: {
                             marker: {
@@ -455,7 +459,7 @@
                 });
 
 
-                function addRatingArrows(arr) {
+                function addTrendArrows(arr) {
                     if (!arr) return;
                     arr.forEach((el, ind, arr) => {
                         if (ind > 0) {
@@ -474,7 +478,7 @@
                                 arr[ind] = {
                                     x: x,
                                     y: y,
-                                    label: y + "SR" + (py !== y ? (" (" + (y > py ? "+" : "") + (Math.abs(y) - Math.abs(py)) + ")") : ""),
+                                    label: y + (py !== y ? (" (" + (y > py ? "+" : "") + (Math.abs(y) - Math.abs(py)) + ")") : ""),
                                     marker: {
                                         symbol: symbol
                                     }
