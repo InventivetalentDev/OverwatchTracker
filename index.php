@@ -95,12 +95,13 @@
 
                         <div class="row" id="ratings-role">
                             <?php
+                            $ri = 0;
                             foreach ($roles as $r) {
                                 ?>
                                 <div class="col s12 m6">
                                     <div class="card ">
                                         <div class="card-content">
-                                            <span class="card-title">Role: <?php echo $r; ?></span>
+                                            <span class="card-title role-title-<?php echo $r; ?> role-title-n-<?php echo $ri++; ?>">Role: <?php echo $r; ?></span>
                                             <div class="card-chart" id="rating-role-chart-<?php echo $r; ?>"></div>
                                         </div>
                                     </div>
@@ -115,12 +116,13 @@
 
                         <div class="row" id="ratings-player">
                             <?php
+                            $ni = 0;
                             foreach ($names as $n) {
                                 ?>
                                 <div class="col s12 m6">
                                     <div class="card ">
                                         <div class="card-content">
-                                            <span class="card-title">Player: <?php echo $n; ?></span>
+                                            <span class="card-title player-title-<?php echo str_replace("#", "-", $n); ?> player-title-n-<?php echo $ni++; ?>">Player: <?php echo $n; ?></span>
                                             <div class="card-chart" id="rating-name-chart-<?php echo str_replace("#", "-", $n); ?>"></div>
                                         </div>
                                     </div>
@@ -257,14 +259,30 @@
             ];
 
 
+            const roleColors = {
+                "support": '#21a5ff',
+                "damage": '#ff212b',
+                "tank": '#07cd09'
+            };
+
+
+            const nameColors = [
+              '#2288ff',
+              '#ff2f0b',
+              '#803b0e',
+              '#b2206e',
+              '#38be1d',
+                /* add more colors here if needed */
+            ];
+
             const seasonPlotLines = [
                 {
-                  label:"Season 19",
-                  value: new Date(2019,11-1,9).getTime()
+                    label: "Season 19",
+                    value: new Date(2019, 11 - 1, 9).getTime()
                 },
                 {
                     label: "Season 20",
-                    value:new Date(2020,1-1,2).getTime()
+                    value: new Date(2020, 1 - 1, 2).getTime()
                 }
             ];
 
@@ -278,11 +296,14 @@
             $(document).ready(() => {
 
                 roles.forEach(r => {
+                    $(".role-title-"+r).css({color:roleColors[r]});
+
                     let roleSeries = [];
-                    names.forEach(n => {
+                    names.forEach((n,i) => {
                         roleSeries.push({
                             name: n,
-                            data: ratings[r][n]
+                            data: ratings[r][n],
+                            color:nameColors[i%nameColors.length]
                         });
                     });
 
@@ -298,7 +319,7 @@
                             title: {
                                 text: 'Date'
                             },
-                            plotLines:seasonPlotLines
+                            plotLines: seasonPlotLines
                         },
                         yAxis: {
                             title: {
@@ -321,12 +342,15 @@
 
                 });
 
-                names.forEach(n => {
+                names.forEach((n,i) => {
+                    $(".player-title-n-"+i).css({color: nameColors[i % nameColors.length]});
+
                     let nameSeries = [];
                     roles.forEach(r => {
                         nameSeries.push({
                             name: r,
-                            data: ratings[r][n]
+                            data: ratings[r][n],
+                            color: roleColors[r]
                         })
                     });
 
@@ -342,7 +366,7 @@
                             title: {
                                 text: 'Date'
                             },
-                            plotLines:seasonPlotLines
+                            plotLines: seasonPlotLines
                         },
                         yAxis: {
                             title: {
