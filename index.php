@@ -407,10 +407,11 @@
                 });
 
                 let levelSeries = [];
-                names.forEach(n => {
+                names.forEach((n,i) => {
                     levelSeries.push({
                         name: n,
-                        data: levels[n]
+                        data: levels[n],
+                        color: nameColors[i%nameColors.length]
                     })
                 });
                 Highcharts.chart('levels-chart', {
