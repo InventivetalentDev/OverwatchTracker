@@ -339,6 +339,9 @@
                             },
                             min: minRating - 100,
                             max: maxRating + 100,
+                            startOnTick: false,
+                            endOnTick: false,
+                            plotBands: ratingPlotBands
                         },
                         tooltip: {
                             formatter: ratingTooltipFormatter
@@ -390,6 +393,8 @@
                             },
                             min: minRating - 100,
                             max: maxRating + 100,
+                            startOnTick: false,
+                            endOnTick: false,
                             plotBands: ratingPlotBands
                         },
                         tooltip: {
@@ -432,8 +437,10 @@
                         title: {
                             text: 'Level'
                         },
-                        min: minLevel - 50,
-                        max: maxLevel + 50,
+                        min: minLevel - 100,
+                        max: maxLevel + 100,
+                        startOnTick: false,
+                        endOnTick: false,
                         plotBands: levelPlotBands
                     },
 
