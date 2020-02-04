@@ -4,6 +4,9 @@
         <!-- Compiled and minified CSS -->
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
 
+        <!--Import Google Icon Font-->
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
         <style>
             /* https://coderwall.com/p/hkgamw/creating-full-width-100-container-inside-fixed-width-container */
             .row-full {
@@ -267,11 +270,11 @@
 
 
             const nameColors = [
-              '#2288ff',
-              '#ff2f0b',
-              '#803b0e',
-              '#b2206e',
-              '#38be1d',
+                '#2288ff',
+                '#ff2f0b',
+                '#803b0e',
+                '#b2206e',
+                '#38be1d',
                 /* add more colors here if needed */
             ];
 
@@ -286,6 +289,12 @@
                 }
             ];
 
+
+            const ratingTooltipFormatter =function (tooltip) {
+                return '<span style="font-size: 10px">' + Highcharts.dateFormat('%Y-%m-%d', this.x) + '</span><br/>' +
+                    '<span style="color:' + this.point.color + '">●</span> ' + this.series.name + ': <b>' + (this.point.label || this.y+"SR") + '</b><br/>';
+            };
+
             Highcharts.setOptions({
                 global: {
                     useUTC: false
@@ -296,14 +305,16 @@
             $(document).ready(() => {
 
                 roles.forEach(r => {
-                    $(".role-title-"+r).css({color:roleColors[r]});
+                    $(".role-title-" + r).css({color: roleColors[r]});
 
                     let roleSeries = [];
-                    names.forEach((n,i) => {
+                    names.forEach((n, i) => {
+                        let ratingsCopy = ratings[r][n];
+                        addRatingArrows(ratingsCopy);
                         roleSeries.push({
                             name: n,
-                            data: ratings[r][n],
-                            color:nameColors[i%nameColors.length]
+                            data: ratingsCopy,
+                            color: nameColors[i % nameColors.length]
                         });
                     });
 
@@ -327,9 +338,10 @@
                             },
                             min: minRating - 100,
                             max: maxRating + 100,
-                            plotBands: ratingPlotBands
                         },
-
+                        tooltip: {
+                            formatter: ratingTooltipFormatter
+                        },
                         plotOptions: {
                             series: {
                                 marker: {
@@ -342,14 +354,16 @@
 
                 });
 
-                names.forEach((n,i) => {
-                    $(".player-title-n-"+i).css({color: nameColors[i % nameColors.length]});
+                names.forEach((n, i) => {
+                    $(".player-title-n-" + i).css({color: nameColors[i % nameColors.length]});
 
                     let nameSeries = [];
                     roles.forEach(r => {
+                        let ratingsCopy = ratings[r][n];
+                        addRatingArrows(ratingsCopy);
                         nameSeries.push({
                             name: r,
-                            data: ratings[r][n],
+                            data: ratingsCopy,
                             color: roleColors[r]
                         })
                     });
@@ -376,7 +390,9 @@
                             max: maxRating + 100,
                             plotBands: ratingPlotBands
                         },
-
+                        tooltip: {
+                            formatter: ratingTooltipFormatter
+                        },
                         plotOptions: {
                             series: {
                                 marker: {
@@ -426,6 +442,36 @@
                     },
                     series: levelSeries
                 });
+
+
+                function addRatingArrows(arr) {
+                    if (!arr) return;
+                    arr.forEach((el, ind, arr) => {
+                        if (ind > 0) {
+                            let px = arr[ind - 1][0] || arr[ind - 1].x;
+                            let py = arr[ind - 1][1] || arr[ind - 1].y;
+
+                            let x = el[0] || el.x;
+                            let y = el[1] || el.y;
+                            let symbol;
+                            if (py < y) {
+                                symbol = "url(/icons/trending_up-24px.svg)";
+                            } else if (py > y) {
+                                symbol = "url(/icons/trending_down-24px.svg)";
+                            }
+                            if (symbol) {
+                                arr[ind] = {
+                                    x: x,
+                                    y: y,
+                                    label: y + "SR" + (py !== y ? (" (" + (y > py ? "+" : "") + (Math.abs(y) - Math.abs(py)) + ")") : ""),
+                                    marker: {
+                                        symbol: symbol
+                                    }
+                                };
+                            }
+                        }
+                    });
+                }
 
             });
         </script>
