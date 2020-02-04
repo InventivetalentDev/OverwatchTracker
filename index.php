@@ -320,7 +320,8 @@
 
                     Highcharts.chart('rating-role-chart-' + r, {
                         chart: {
-                            type: 'spline'
+                            type: 'spline',
+                            zoomType: 'xy'
                         },
                         title: {
                             text: 'Rating History per Player'
@@ -370,7 +371,8 @@
 
                     Highcharts.chart('rating-name-chart-' + (n.replace("#", "-")), {
                         chart: {
-                            type: 'spline'
+                            type: 'spline',
+                            zoomType: 'xy'
                         },
                         title: {
                             text: 'Rating History per Role'
@@ -413,7 +415,8 @@
                 });
                 Highcharts.chart('levels-chart', {
                     chart: {
-                        type: 'spline'
+                        type: 'spline',
+                        zoomType: 'xy'
                     },
                     title: {
                         text: 'Player Level History'
