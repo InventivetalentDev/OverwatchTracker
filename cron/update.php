@@ -13,6 +13,7 @@ $stmt->close();
 unset($stmt);
 
 $date = date("Y-m-d");
+$time = date("H:i:s");
 
 foreach ($names as $name) {
     echo $name;
@@ -34,8 +35,8 @@ foreach ($names as $name) {
         for ($i = 0; $i < sizeof($json["ratings"]); $i++) {
             $r = $json["ratings"][$i];
 
-            $stmt = $conn->prepare("INSERT IGNORE INTO overwatch_ratings (name,role,rating,date) VALUES(?,?,?,?)");
-            $stmt->bind_param("ssis", $name, $r["role"], $r["level"], $date);
+            $stmt = $conn->prepare("INSERT IGNORE INTO overwatch_ratings (name,role,rating,date,time) VALUES(?,?,?,?,?)");
+            $stmt->bind_param("ssis", $name, $r["role"], $r["level"], $date, $time);
             $stmt->execute();
             $stmt->close();
             unset($stmt);
@@ -47,8 +48,8 @@ foreach ($names as $name) {
         if($quickGames["played"]>0)$winRateQuick = round($quickGames["won"] / $quickGames["played"],4);
     }
 
-    $stmt = $conn->prepare("INSERT IGNORE INTO overwatch_levels (name,prestige,level,winRateComp,winRateQuick,date) VALUES(?,?,?,?,?,?)");
-    $stmt->bind_param("siidds", $name, $json["prestige"], $json["level"], $winRateComp, $winRateQuick, $date);
+    $stmt = $conn->prepare("INSERT IGNORE INTO overwatch_levels (name,prestige,level,winRateComp,winRateQuick,date,time) VALUES(?,?,?,?,?,?,?)");
+    $stmt->bind_param("siidds", $name, $json["prestige"], $json["level"], $winRateComp, $winRateQuick, $date, $time);
     $stmt->execute();
     $stmt->close();
     unset($stmt);
