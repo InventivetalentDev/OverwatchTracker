@@ -34,9 +34,9 @@
         $maxLevel = 1;
 
 
-        $stmt = $conn->prepare("select name,role,rating,date from overwatch_ratings order by date asc");
+        $stmt = $conn->prepare("select name,role,rating,date,time from overwatch_ratings order by date,time asc");
         $stmt->execute();
-        $stmt->bind_result($name, $role, $rating, $time);
+        $stmt->bind_result($name, $role, $rating, $date, $time);
         while ($row = $stmt->fetch()) {
             if (!isset($ratings[$role])) {
                 $ratings[$role] = array();
@@ -48,7 +48,7 @@
             if (!in_array($name, $names)) {
                 $names[] = $name;
             }
-            $ratings[$role][$name][] = array(strtotime($time) * 1000, $rating);
+            $ratings[$role][$name][] = array(strtotime($date." ".$time) * 1000, $rating);
 
             if ($rating < $minRating) {
                 $minRating = $rating;
@@ -63,9 +63,9 @@
 
         $levels = array();
 
-        $stmt = $conn->prepare("select name,prestige,level,date from overwatch_levels order by date asc");
+        $stmt = $conn->prepare("select name,prestige,level,date,time from overwatch_levels order by date,time asc");
         $stmt->execute();
-        $stmt->bind_result($name, $prestige, $level, $time);
+        $stmt->bind_result($name, $prestige, $level, $date, $time);
         while ($row = $stmt->fetch()) {
             if (!in_array($name, $names)) {
                 $names[] = $name;
@@ -74,7 +74,7 @@
                 $levels[$name] = array();
             }
             $l = ($prestige * 100 + $level);
-            $levels[$name][] = array(strtotime($time) * 1000, $l);
+            $levels[$name][] = array(strtotime($date." ".$time) * 1000, $l);
 
             if ($l < $minLevel) {
                 $minLevel = $l;
@@ -291,7 +291,7 @@
 
 
             const labeledTooltipFormatter =function (tooltip) {
-                return '<span style="font-size: 10px">' + Highcharts.dateFormat('%Y-%m-%d', this.x) + '</span><br/>' +
+                return '<span style="font-size: 10px">' + Highcharts.dateFormat('%Y-%m-%d %H:%M', this.x) + '</span><br/>' +
                     '<span style="color:' + this.point.color + '">●</span> ' + this.series.name + ': <b>' + (this.point.label || this.y) + '</b><br/>';
             };
 
