@@ -48,7 +48,7 @@
             if (!in_array($name, $names)) {
                 $names[] = $name;
             }
-            $ratings[$role][$name][] = array(strtotime($date." ".$time) * 1000, $rating);
+            $ratings[$role][$name][] = array(strtotime($date . " " . $time) * 1000, $rating);
 
             if ($rating < $minRating) {
                 $minRating = $rating;
@@ -74,7 +74,7 @@
                 $levels[$name] = array();
             }
             $l = ($prestige * 100 + $level);
-            $levels[$name][] = array(strtotime($date." ".$time) * 1000, $l);
+            $levels[$name][] = array(strtotime($date . " " . $time) * 1000, $l);
 
             if ($l < $minLevel) {
                 $minLevel = $l;
@@ -86,6 +86,53 @@
         $stmt->close();
         unset($stmt);
 
+
+        $games = array();
+        $lossCount = 0;
+        $winCount = 0;
+        $drawCount = 0;
+
+        $gamesPerMap = array();
+
+        $stmt = $conn->prepare("select result,self,enemy,map,time from overwatch_games order by time asc");
+        $stmt->execute();
+        $stmt->bind_result($result, $self, $enemy, $map, $time);
+        while ($row = $stmt->fetch()) {
+            if (!isset($gamesPerMap[$map])) {
+                $gamesPerMap[$map] = array(
+                    "win" => 0,
+                    "loss" => 0,
+                    "draw" => 0
+                );
+            }
+
+            $y = 0;
+            switch ($result) {
+                case "LOSS":
+                    $lossCount++;
+                    $gamesPerMap[$map]["loss"]++;
+                    $y = -1;
+                    break;
+                case "WIN":
+                    $winCount++;
+                    $gamesPerMap[$map]["win"]++;
+                    $y = 1;
+                    break;
+                case "DRAW":
+                    $drawCount++;
+                    $gamesPerMap[$map]["draw"]++;
+                    $y = 0;
+                    break;
+            }
+
+            $games[] = array(
+                "x" => strtotime($time) * 1000,
+                "y" =>$y,
+                "label"=>$map." ".$self."-".$enemy
+            );
+        }
+        $stmt->close();
+        unset($stmt);
 
         ?>
 
@@ -149,6 +196,31 @@
                             </div>
                         </div>
                     </div>
+                    <div class="row" id="levels">
+                        <h1>Win Rate</h1>
+
+                        <div class="row">
+                            <div class="col s12 m12">
+                                <div class="card ">
+                                    <div class="card-content">
+                                        <span class="card-title">Win Rate</span>
+                                        <span id="winrate"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col s12 m12">
+                                <div class="card ">
+                                    <div class="card-content">
+                                        <span class="card-title">Games</span>
+                                        <div class="card-chart" id="games-chart"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -167,12 +239,17 @@
             echo "let names = " . json_encode($names) . ";";
             echo "let ratings = " . json_encode($ratings) . ";";
             echo "let levels = " . json_encode($levels) . ";";
+            echo "let games = " . json_encode($games) . ";";
 
             echo "let minRating = " . $minRating . ";";
             echo "let maxRating = " . $maxRating . ";";
 
             echo "let minLevel = " . $minLevel . ";";
             echo "let maxLevel = " . $maxLevel . ";";
+
+            echo "let wins = " . $winCount . ";";
+            echo "let losses = " . $lossCount . ";";
+            echo "let draws = " . $drawCount . ";";
 
             ?>
 
@@ -290,7 +367,7 @@
             ];
 
 
-            const labeledTooltipFormatter =function (tooltip) {
+            const labeledTooltipFormatter = function (tooltip) {
                 return '<span style="font-size: 10px">' + Highcharts.dateFormat('%Y-%m-%d %H:%M', this.x) + '</span><br/>' +
                     '<span style="color:' + this.point.color + '">●</span> ' + this.series.name + ': <b>' + (this.point.label || this.y) + '</b><br/>';
             };
@@ -303,6 +380,11 @@
 
 
             $(document).ready(() => {
+
+                let totalGames = wins+losses+draws;
+                let winRate = Math.round((wins / totalGames) * 100);
+
+                $("#winrate").text(winRate + "%");
 
                 roles.forEach(r => {
                     $(".role-title-" + r).css({color: roleColors[r]});
@@ -411,14 +493,15 @@
                     });
                 });
 
+
                 let levelSeries = [];
-                names.forEach((n,i) => {
-                    let levelsCopy =levels[n];
+                names.forEach((n, i) => {
+                    let levelsCopy = levels[n];
                     addTrendArrows(levelsCopy);
                     levelSeries.push({
                         name: n,
                         data: levelsCopy,
-                        color: nameColors[i%nameColors.length]
+                        color: nameColors[i % nameColors.length]
                     })
                 });
                 Highcharts.chart('levels-chart', {
@@ -445,7 +528,7 @@
                         endOnTick: false,
                         plotBands: levelPlotBands
                     },
-                    tooltip:{
+                    tooltip: {
                         formatter: labeledTooltipFormatter
                     },
                     plotOptions: {
@@ -456,6 +539,64 @@
                         }
                     },
                     series: levelSeries
+                });
+
+                Highcharts.chart('games-chart', {
+                    chart: {
+                    },
+                    title: {
+                        text: 'Game Results'
+                    },
+                    xAxis: {
+                        type: 'datetime',
+                        title: {
+                            text: 'Date'
+                        }
+                    },
+                    yAxis: {
+                        title: {
+                            text: 'Result'
+                        },
+                        min: -1.5,
+                        max: 1.5,
+                        startOnTick: false,
+                        endOnTick: false,
+                        plotBands:[
+                            {
+                                label: {text: "Win"},
+                                color: '#25f407',
+                                from: 0.5,
+                                to: 2
+                            },
+                            {
+                                label: {text: "Draw"},
+                                color: '#d7de17',
+                                from: -0.5,
+                                to: 0.5
+                            },
+                            {
+                                label: {text: "Loss"},
+                                color: '#ff0c16',
+                                from: -0.5,
+                                to: -2
+                            }
+                        ]
+                    },
+                    tooltip: {
+                        formatter: labeledTooltipFormatter
+                    },
+                    plotOptions: {
+                        series: {
+                            marker: {
+                                enabled: true
+                            }
+                        }
+                    },
+                    series: [{
+                        name: "Game Results",
+                        data: games,
+                        step: 'left'
+                    }]
                 });
 
 
