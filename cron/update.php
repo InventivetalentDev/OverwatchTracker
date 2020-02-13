@@ -36,10 +36,11 @@ foreach ($names as $name) {
             $r = $json["ratings"][$i];
 
             $stmt = $conn->prepare("INSERT IGNORE INTO overwatch_ratings (name,role,rating,date,time) VALUES(?,?,?,?,?)");
-            $stmt->bind_param("ssis", $name, $r["role"], $r["level"], $date, $time);
-            $stmt->execute();
+            $stmt->bind_param("ssiss", $name, $r["role"], $r["level"], $date, $time);
+            echo $stmt->execute();
             $stmt->close();
             unset($stmt);
+            echo "\n";
         }
 
         $compGames = $json["competitiveStats"]["games"];
@@ -49,12 +50,12 @@ foreach ($names as $name) {
     }
 
     $stmt = $conn->prepare("INSERT IGNORE INTO overwatch_levels (name,prestige,level,winRateComp,winRateQuick,date,time) VALUES(?,?,?,?,?,?,?)");
-    $stmt->bind_param("siidds", $name, $json["prestige"], $json["level"], $winRateComp, $winRateQuick, $date, $time);
-    $stmt->execute();
+     $stmt->bind_param("siiddss", $name, $json["prestige"], $json["level"], $winRateComp, $winRateQuick, $date, $time);
+    echo $stmt->execute();
     $stmt->close();
     unset($stmt);
 
-
+    echo "\n\n";
 }
 
 $conn->close();
