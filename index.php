@@ -127,8 +127,8 @@
 
             $games[] = array(
                 "x" => strtotime($time) * 1000,
-                "y" =>$y,
-                "label"=>$map." ".$self."-".$enemy
+                "y" => $y,
+                "label" => $map . " " . $self . "-" . $enemy
             );
         }
         $stmt->close();
@@ -204,7 +204,19 @@
                                 <div class="card ">
                                     <div class="card-content">
                                         <span class="card-title">Win Rate</span>
-                                        <span id="winrate"></span>
+                                        <h3 id="winrate" style="margin-bottom: 0;"><?php echo round(($winCount / ($winCount + $lossCount + $drawCount)) * 100,2) ?>%</h3>
+                                        <span id="winreateSubtitle">(<?php echo $winCount; ?>w <?php echo $lossCount; ?>l <?php echo $drawCount; ?>d)</span>
+                                        <br/>
+                                        <br/>
+
+                                        <?php
+                                        foreach ($gamesPerMap as $m => $i) {
+                                            $r = $i["win"] / ($i["win"] + $i["loss"] + $i["draw"]);
+                                            ?>
+                                                <span><strong><?php echo $m; ?></strong> <?php echo round($r*100,2); ?>% (<?php echo $i["win"]; ?>w <?php echo $i["loss"]; ?>l <?php echo $i["draw"]; ?>d)</span><br/>
+                                            <?php
+                                        }
+                                        ?>
                                     </div>
                                 </div>
                             </div>
@@ -381,11 +393,6 @@
 
             $(document).ready(() => {
 
-                let totalGames = wins+losses+draws;
-                let winRate = Math.round((wins / totalGames) * 100);
-
-                $("#winrate").text(winRate + "%");
-
                 roles.forEach(r => {
                     $(".role-title-" + r).css({color: roleColors[r]});
 
@@ -542,8 +549,7 @@
                 });
 
                 Highcharts.chart('games-chart', {
-                    chart: {
-                    },
+                    chart: {},
                     title: {
                         text: 'Game Results'
                     },
@@ -561,7 +567,7 @@
                         max: 1.5,
                         startOnTick: false,
                         endOnTick: false,
-                        plotBands:[
+                        plotBands: [
                             {
                                 label: {text: "Win"},
                                 color: '#25f407',
