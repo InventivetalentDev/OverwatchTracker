@@ -191,6 +191,41 @@
                                     <div class="card-content">
                                         <span class="card-title">Levels</span>
                                         <div class="card-chart" id="levels-chart"></div>
+                                        <?php
+                                        $days = 4;
+                                        $pointsPerDay =4;
+                                        ?>
+                                        <h4>Average Level Increments over the past <?php echo $days; ?> days</h4>
+                                        <?php
+                                        foreach ($names as $n) {
+                                            $totalLevelIncrease = 0;
+                                            $levelSize = sizeof($levels[$n]);
+                                            for ($l = 0; $l < $days*$pointsPerDay; $l++) {
+                                                $totalLevelIncrease += $levels[$n][$levelSize - $l - 1][1] - $levels[$n][$levelSize - $l - 2][1];
+                                            }
+                                            $avgLevelIncreasePerDay = $totalLevelIncrease/ $days;
+
+
+                                            ?>
+                                            <strong><?php echo $n; ?></strong> <?php echo $avgLevelIncreasePerDay; ?>
+                                            <?php
+
+                                            $currentLevel = $levels[$n][$levelSize - 1][1];
+                                            $currentLevelFac = $currentLevel%100;
+
+                                            $futureLevel = $currentLevel;
+                                            $levelFac=99;
+                                            $nextPromotionDays = 0;
+                                            while (($levelFac = ($futureLevel)%100)>=$currentLevelFac) {
+                                                $futureLevel+=$avgLevelIncreasePerDay;
+                                                $nextPromotionDays++;
+                                            }
+
+                                            ?>
+                                        -> Estimated days until next promotion (100lvl): <?php echo $nextPromotionDays ?><br/>
+                                        <?php
+                                        }
+                                        ?>
                                     </div>
                                 </div>
                             </div>
@@ -204,7 +239,7 @@
                                 <div class="card ">
                                     <div class="card-content">
                                         <span class="card-title">Win Rate</span>
-                                        <h3 id="winrate" style="margin-bottom: 0;"><?php echo round(($winCount / ($winCount + $lossCount + $drawCount)) * 100,2) ?>%</h3>
+                                        <h3 id="winrate" style="margin-bottom: 0;"><?php echo round(($winCount / ($winCount + $lossCount + $drawCount)) * 100, 2) ?>%</h3>
                                         <span id="winreateSubtitle">(<?php echo $winCount; ?>w <?php echo $lossCount; ?>l <?php echo $drawCount; ?>d)</span>
                                         <br/>
                                         <br/>
@@ -213,7 +248,7 @@
                                         foreach ($gamesPerMap as $m => $i) {
                                             $r = $i["win"] / ($i["win"] + $i["loss"] + $i["draw"]);
                                             ?>
-                                                <span><strong><?php echo $m; ?></strong> <?php echo round($r*100,2); ?>% (<?php echo $i["win"]; ?>w <?php echo $i["loss"]; ?>l <?php echo $i["draw"]; ?>d)</span><br/>
+                                            <span><strong><?php echo $m; ?></strong> <?php echo round($r * 100, 2); ?>% (<?php echo $i["win"]; ?>w <?php echo $i["loss"]; ?>l <?php echo $i["draw"]; ?>d)</span><br/>
                                             <?php
                                         }
                                         ?>
