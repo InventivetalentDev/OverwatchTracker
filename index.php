@@ -193,17 +193,17 @@
                                         <div class="card-chart" id="levels-chart"></div>
                                         <?php
                                         $days = 4;
-                                        $pointsPerDay =4;
+                                        $pointsPerDay = 4;
                                         ?>
                                         <h4>Average Level Increments over the past <?php echo $days; ?> days</h4>
                                         <?php
                                         foreach ($names as $n) {
                                             $totalLevelIncrease = 0;
                                             $levelSize = sizeof($levels[$n]);
-                                            for ($l = 0; $l < $days*$pointsPerDay; $l++) {
+                                            for ($l = 0; $l < $days * $pointsPerDay; $l++) {
                                                 $totalLevelIncrease += $levels[$n][$levelSize - $l - 1][1] - $levels[$n][$levelSize - $l - 2][1];
                                             }
-                                            $avgLevelIncreasePerDay = $totalLevelIncrease/ $days;
+                                            $avgLevelIncreasePerDay = $totalLevelIncrease / $days;
 
 
                                             ?>
@@ -211,19 +211,19 @@
                                             <?php
 
                                             $currentLevel = $levels[$n][$levelSize - 1][1];
-                                            $currentLevelFac = $currentLevel%100;
+                                            $currentLevelFac = $currentLevel % 100;
 
                                             $futureLevel = $currentLevel;
-                                            $levelFac=99;
+                                            $levelFac = 99;
                                             $nextPromotionDays = 0;
-                                            while (($levelFac = ($futureLevel)%100)>=$currentLevelFac) {
-                                                $futureLevel+=$avgLevelIncreasePerDay;
+                                            while (($levelFac = ($futureLevel) % 100) >= $currentLevelFac) {
+                                                $futureLevel += $avgLevelIncreasePerDay;
                                                 $nextPromotionDays++;
                                             }
 
                                             ?>
-                                        -> Estimated days until next promotion (100lvl): <?php echo $nextPromotionDays ?><br/>
-                                        <?php
+                                            -> Next promotion in about ~<?php echo $nextPromotionDays ?> days<br/>
+                                            <?php
                                         }
                                         ?>
                                     </div>
@@ -245,10 +245,29 @@
                                         <br/>
 
                                         <?php
+                                        $gamesSortedByTotalGames = array();
                                         foreach ($gamesPerMap as $m => $i) {
-                                            $r = $i["win"] / ($i["win"] + $i["loss"] + $i["draw"]);
+                                            $gamesSortedByTotalGames[] = array(
+                                                    "m"=>$m,
+                                                "w" => $i["win"],
+                                                "l" => $i["loss"],
+                                                "d" => $i["draw"],
+                                                "t" => $i["win"] + $i["loss"] + $i["draw"]
+                                            );
+                                        }
+                                        usort($gamesSortedByTotalGames,function ($a,$b){
+                                            if ($a["t"] < $b["t"]) {
+                                                return 1;
+                                            }else if ($a["t"] > $b["t"]) {
+                                                return -1;
+                                            }
+                                            return 0;
+                                        });
+
+                                        foreach ($gamesSortedByTotalGames as $i) {
+                                            $r = $i["w"] / ($i["t"]);
                                             ?>
-                                            <span><strong><?php echo $m; ?></strong> <?php echo round($r * 100, 2); ?>% (<?php echo $i["win"]; ?>w <?php echo $i["loss"]; ?>l <?php echo $i["draw"]; ?>d)</span><br/>
+                                            <span><strong><?php echo $i["m"]; ?></strong> <?php echo round($r * 100, 2); ?>% (<?php echo $i["w"]; ?>w <?php echo $i["l"]; ?>l <?php echo $i["d"]; ?>d)</span><br/>
                                             <?php
                                         }
                                         ?>
