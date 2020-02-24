@@ -602,8 +602,33 @@
                     series: levelSeries
                 });
 
+                let winRateData = [];
+                let cw  =0;
+                let cl = 0;
+                let cd =0;
+                for (let i = 0; i < games.length; i++) {
+                    let time = games[i].x||games[i][0];
+                    let result = games[i].y||games[i][1];
+
+                    switch (result) {
+                        case -1:
+                            cl++;
+                            break;
+                        case 1:
+                            cw++;
+                            break;
+                        case 0:
+                            cd++;
+                            break;
+                    }
+
+                    let r = Math.fround(cw / (cw + cl + cd));
+                    winRateData.push([time, r]);
+                }
                 Highcharts.chart('games-chart', {
-                    chart: {},
+                    chart: {
+                        zoomType: 'x'
+                    },
                     title: {
                         text: 'Game Results'
                     },
@@ -653,9 +678,13 @@
                         }
                     },
                     series: [{
+                        lineWidth: 0,
                         name: "Game Results",
                         data: games,
                         step: 'left'
+                    },{
+                        name:"Win Rate",
+                        data:winRateData
                     }]
                 });
 
