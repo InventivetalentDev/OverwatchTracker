@@ -681,7 +681,12 @@
                         lineWidth: 0,
                         name: "Game Results",
                         data: games,
-                        step: 'left'
+                        step: 'left',
+                        states: {
+                            hover: {
+                                lineWidthPlus: 0
+                            }
+                        }
                     },{
                         name:"Win Rate",
                         data:winRateData
