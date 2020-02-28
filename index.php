@@ -93,13 +93,21 @@
         $drawCount = 0;
 
         $gamesPerMap = array();
+        $gamesPerQueue = array();
 
-        $stmt = $conn->prepare("select result,self,enemy,map,time from overwatch_games order by time asc");
+        $stmt = $conn->prepare("select result,self,enemy,map,time,queue from overwatch_games order by time asc");
         $stmt->execute();
-        $stmt->bind_result($result, $self, $enemy, $map, $time);
+        $stmt->bind_result($result, $self, $enemy, $map, $time, $queue);
         while ($row = $stmt->fetch()) {
             if (!isset($gamesPerMap[$map])) {
                 $gamesPerMap[$map] = array(
+                    "win" => 0,
+                    "loss" => 0,
+                    "draw" => 0
+                );
+            }
+            if (!isset($gamesPerQueue[$queue])) {
+                $gamesPerQueue[$queue] = array(
                     "win" => 0,
                     "loss" => 0,
                     "draw" => 0
@@ -111,16 +119,19 @@
                 case "LOSS":
                     $lossCount++;
                     $gamesPerMap[$map]["loss"]++;
+                    $gamesPerQueue[$queue]["loss"]++;
                     $y = -1;
                     break;
                 case "WIN":
                     $winCount++;
                     $gamesPerMap[$map]["win"]++;
+                    $gamesPerQueue[$queue]["win"]++;
                     $y = 1;
                     break;
                 case "DRAW":
                     $drawCount++;
                     $gamesPerMap[$map]["draw"]++;
+                    $gamesPerQueue[$queue]["draw"]++;
                     $y = 0;
                     break;
             }
@@ -264,10 +275,19 @@
                                             return 0;
                                         });
 
+                                        echo "<h4>Per Map</h4>";
                                         foreach ($gamesSortedByTotalGames as $i) {
                                             $r = $i["w"] / ($i["t"]);
                                             ?>
                                             <span><strong><?php echo $i["m"]; ?></strong> <?php echo round($r * 100, 2); ?>% (<?php echo $i["w"]; ?>w <?php echo $i["l"]; ?>l <?php echo $i["d"]; ?>d)</span><br/>
+                                            <?php
+                                        }
+
+                                        echo "<h4>Per Queue Type</h4>";
+                                        foreach ($gamesPerQueue as $m => $i) {
+                                            $r = $i["win"] / ($i["win"] + $i["loss"] + $i["draw"]);
+                                            ?>
+                                            <span><strong><?php echo $m; ?></strong> <?php echo round($r*100,2) ?>% (<?php echo $i["win"]; ?>w <?php echo $i["loss"]; ?>l <?php echo $i["draw"]; ?>d)</span><br/>
                                             <?php
                                         }
                                         ?>
@@ -429,6 +449,10 @@
                 {
                     label: "Season 20",
                     value: new Date(2020, 1 - 1, 2).getTime()
+                },
+                {
+                    label: "Season 21",
+                    value: new Date(2020, 3 - 1, 5).getTime()
                 }
             ];
 
