@@ -145,6 +145,9 @@
         $stmt->close();
         unset($stmt);
 
+        $conn->close();
+        unset($conn);
+
         ?>
 
         <div class="container">
