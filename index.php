@@ -33,6 +33,8 @@
         $minLevel = 9999;
         $maxLevel = 1;
 
+        $minTime = 9999999999;
+        $maxTime = 0;
 
         $stmt = $conn->prepare("select name,role,rating,date,time from overwatch_ratings where date >  DATE_SUB(NOW(), INTERVAL 3 month) order by date,time asc");
         $stmt->execute();
@@ -48,13 +50,20 @@
             if (!in_array($name, $names)) {
                 $names[] = $name;
             }
-            $ratings[$role][$name][] = array(strtotime($date . " " . $time) * 1000, $rating);
+            $t = strtotime($date . " " . $time);
+            $ratings[$role][$name][] = array($t * 1000, $rating);
 
             if ($rating < $minRating) {
                 $minRating = $rating;
             }
             if ($rating > $maxRating) {
                 $maxRating = $rating;
+            }
+            if ($t < $minTime) {
+                $minTime = $t;
+            }
+            if ($t > $maxTime) {
+                $maxTime  = $t;
             }
         }
         $stmt->close();
@@ -74,13 +83,20 @@
                 $levels[$name] = array();
             }
             $l = ($prestige * 100 + $level);
-            $levels[$name][] = array(strtotime($date . " " . $time) * 1000, $l);
+            $t = strtotime($date . " " . $time);
+            $levels[$name][] = array($t * 1000, $l);
 
             if ($l < $minLevel) {
                 $minLevel = $l;
             }
             if ($l > $maxLevel) {
                 $maxLevel = $l;
+            }
+            if ($t < $minTime) {
+                $minTime = $t;
+            }
+            if ($t > $maxTime) {
+                $maxTime  = $t;
             }
         }
         $stmt->close();
@@ -136,11 +152,19 @@
                     break;
             }
 
+            $t = strtotime($time);
             $games[] = array(
-                "x" => strtotime($time) * 1000,
+                "x" =>  $t * 1000,
                 "y" => $y,
                 "label" => $map . " " . $self . "-" . $enemy
             );
+
+            if ($t < $minTime) {
+                $minTime = $t;
+            }
+            if ($t > $maxTime) {
+                $maxTime  = $t;
+            }
         }
         $stmt->close();
         unset($stmt);
@@ -330,12 +354,18 @@
             echo "let ratings = " . json_encode($ratings) . ";";
             echo "let levels = " . json_encode($levels) . ";";
             echo "let games = " . json_encode($games) . ";";
-
+            ?>
+        </script>
+        <script>
+            <?php
             echo "let minRating = " . $minRating . ";";
             echo "let maxRating = " . $maxRating . ";";
 
             echo "let minLevel = " . $minLevel . ";";
             echo "let maxLevel = " . $maxLevel . ";";
+
+            echo "let minTime = ".($minTime*1000).";";
+            echo "let maxTime = ".($maxTime*1000).";";
 
             echo "let wins = " . $winCount . ";";
             echo "let losses = " . $lossCount . ";";
@@ -502,7 +532,9 @@
                             title: {
                                 text: 'Date'
                             },
-                            plotLines: seasonPlotLines
+                            plotLines: seasonPlotLines,
+                            min: minTime-600000,
+                            max: maxTime+600000
                         },
                         yAxis: {
                             title: {
@@ -556,7 +588,9 @@
                             title: {
                                 text: 'Date'
                             },
-                            plotLines: seasonPlotLines
+                            plotLines: seasonPlotLines,
+                            min: minTime-600000,
+                            max: maxTime+600000
                         },
                         yAxis: {
                             title: {
@@ -605,7 +639,9 @@
                         type: 'datetime',
                         title: {
                             text: 'Date'
-                        }
+                        },
+                        min: minTime-600000,
+                        max: maxTime+600000
                     },
                     yAxis: {
                         title: {
@@ -664,7 +700,9 @@
                         type: 'datetime',
                         title: {
                             text: 'Date'
-                        }
+                        },
+                        min: minTime-600000,
+                        max: maxTime+600000
                     },
                     yAxis: {
                         title: {
