@@ -452,7 +452,7 @@
                 },
                 {
                     label: "Season 21",
-                    value: new Date(2020, 3 - 1, 5).getTime()
+                    value: Date.parse("2020-03-05T18:00:00Z")
                 }
             ];
 
