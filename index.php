@@ -34,7 +34,7 @@
         $maxLevel = 1;
 
 
-        $stmt = $conn->prepare("select name,role,rating,date,time from overwatch_ratings order by date,time asc");
+        $stmt = $conn->prepare("select name,role,rating,date,time from overwatch_ratings where date >  DATE_SUB(NOW(), INTERVAL 3 month) order by date,time asc");
         $stmt->execute();
         $stmt->bind_result($name, $role, $rating, $date, $time);
         while ($row = $stmt->fetch()) {
@@ -63,7 +63,7 @@
 
         $levels = array();
 
-        $stmt = $conn->prepare("select name,prestige,level,date,time from overwatch_levels order by date,time asc");
+        $stmt = $conn->prepare("select name,prestige,level,date,time from overwatch_levels where date >  DATE_SUB(NOW(), INTERVAL 3 month) order by date,time asc");
         $stmt->execute();
         $stmt->bind_result($name, $prestige, $level, $date, $time);
         while ($row = $stmt->fetch()) {
@@ -95,7 +95,7 @@
         $gamesPerMap = array();
         $gamesPerQueue = array();
 
-        $stmt = $conn->prepare("select result,self,enemy,map,time,queue from overwatch_games order by time asc");
+        $stmt = $conn->prepare("select result,self,enemy,map,time,queue from overwatch_games where time >  DATE_SUB(NOW(), INTERVAL 3 month) order by time asc");
         $stmt->execute();
         $stmt->bind_result($result, $self, $enemy, $map, $time, $queue);
         while ($row = $stmt->fetch()) {
@@ -230,7 +230,8 @@
                                             $futureLevel = $currentLevel;
                                             $levelFac = 99;
                                             $nextPromotionDays = 0;
-                                            while (($levelFac = ($futureLevel) % 100) >= $currentLevelFac) {
+                                            $it =0;
+                                            while (($it++<100)&&($levelFac = ($futureLevel) % 100) >= $currentLevelFac) {
                                                 $futureLevel += $avgLevelIncreasePerDay;
                                                 $nextPromotionDays++;
                                             }
